@@ -1,22 +1,22 @@
 <template>
     <nav class="navbar navbar-expand-md custom-nav">
         <div class="container">
-            <a href="#" class="navbar-brand">{{ brandName }}</a>
+            <RouterLink :to="{ name: 'home' }" class="navbar-brand">{{ brandName }}</RouterLink>
             <ul class="navbar-nav">
                 <li class="nav-item">
-                    <a href="#" class="nav-link">Home</a>
+                    <RouterLink :to="{ name: 'home' }" class="nav-link">Home</RouterLink>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">Books</a>
+                    <RouterLink :to="{ name: 'books' }" class="nav-link">Books</RouterLink>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">Contact Us</a>
+                    <RouterLink :to="{ name: 'contact' }" class="nav-link">Contact Us</RouterLink>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">Login</a>
+                    <RouterLink :to="{ name: 'login' }" class="nav-link">Login</RouterLink>
                 </li>
                 <li class="nav-item">
-                    <a href="#" class="nav-link">Register</a>
+                    <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
                 </li>
             </ul>
         </div>
@@ -50,8 +50,16 @@ export default {
 }
 
 .nav-link {
-    padding: 10px 25px;
+    padding: 10px 15px !important;
     color: #fff;
     text-align: center;
+}
+
+.nav-link:hover {
+    color: #44b89d;
+}
+
+.active-link {
+    color: #44b89d;
 }
 </style>
