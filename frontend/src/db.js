@@ -6,7 +6,7 @@ const books = [
       page: 320,
       description:
         'A thrilling mystery that keeps readers on the edge of their seats.',
-      rating: 8.5,
+      rating: 2.5,
       uploadDate: '19 Jan 2021',
     },
     {
@@ -46,7 +46,7 @@ const books = [
       page: 150,
       description:
         'A collection of delightful short stories centered around food and culture.',
-      rating: 7.2,
+      rating: 5.2,
       uploadDate: '19 Jan 2021',
     },
     {
