@@ -8,7 +8,7 @@
                 </span>
             </div>
             <h5 class="card-title mt-3 fw-semibold">{{ book.name }}</h5>
-            <p class="card-text">{{ book.description }}
+            <p class="card-text">{{ truncatedText }}
             </p>
             <div class="d-flex justify-content-between align-items-center">
                 <a href="#" class="card-link">Read More</a>
@@ -41,6 +41,12 @@ export default {
             } else {
                 return "bg-danger"
             }
+        },
+        truncatedText() {
+            if (this.book.description.length > 80)
+                return this.book.description.slice(0, 80) + '...'
+
+            return this.book.description
         }
     }
 }
@@ -49,5 +55,9 @@ export default {
 <style scoped>
 .auth-box {
     margin-top: -30px;
+}
+
+.card-text {
+    min-height: 70px;
 }
 </style>
