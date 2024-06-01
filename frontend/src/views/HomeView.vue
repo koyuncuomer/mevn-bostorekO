@@ -20,7 +20,12 @@
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div class="accordion">
+                    <div v-if="isLoading" class="d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <div v-else class="accordion">
                         <div class="accordion-item" v-for="(book, index) in filteredBooks" :key="index">
                             <h2 class="accordion-header">
                                 <button class="accordion-button" type="button"
@@ -60,6 +65,10 @@ import SectionHeader from "@/components/SectionHeader.vue"
 import hero_1 from "@/assets/images/hero_1.jpg"
 import hero_2 from "@/assets/images/hero_2.jpg"
 import hero_3 from "@/assets/images/hero_3.jpg"
+
+import { useBookStore } from "@/stores/bookStore.js"
+import { mapState } from "pinia";
+
 export default {
     name: "HomeView",
     components: {
@@ -73,21 +82,12 @@ export default {
                 { imageUrl: hero_2, subtitle: 'Egalite', title: 'Excepteur Sint Occaecat Cupidatat', description: 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' },
                 { imageUrl: hero_3, subtitle: 'Fraternite', title: 'Neque Porro Quisquam Est', description: 'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.' }
             ],
-            books: [],
+            // bStore: useBookStore(),
             selectedFilter: 'latest',
             openAccordionIndex: 0,
         }
     },
     methods: {
-        async fetchBooks() {
-            try {
-                const response = await fetch('http://localhost:3000/api/v1/books')
-                const data = await response.json()
-                this.books = data
-            } catch (error) {
-
-            }
-        },
         selectFiler(filter) {
             this.selectedFilter = filter
         },
@@ -100,10 +100,9 @@ export default {
             }
         }
     },
-    created() {
-        this.fetchBooks()
-    },
+
     computed: {
+        ...mapState(useBookStore, ['books', 'isLoading']),
         filteredBooks() {
             const copiedBooks = [...this.books]
 

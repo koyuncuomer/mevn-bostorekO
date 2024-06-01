@@ -3,8 +3,15 @@
         <div class="container">
             <SectionHeader title="Books"
                 text="Lorem ipsum dolor sit amet consectetur adipisicing elit. Labore, quod!" />
-            <BookList :books="paginatedBooks" />
-            <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-changed="updatePage" />
+            <div v-if="isLoading" class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div v-else>
+                <BookList :books="paginatedBooks" />
+                <Pagination :currentPage="currentPage" :totalPages="totalPages" @page-changed="updatePage" />
+            </div>
         </div>
     </section>
 </template>
@@ -13,6 +20,9 @@
 import SectionHeader from "@/components/SectionHeader.vue"
 import BookList from "@/components/BookList.vue"
 import Pagination from "@/components/Pagination.vue"
+
+import { useBookStore } from "@/stores/bookStore.js"
+import { mapState } from "pinia";
 
 export default {
     name: "BooksView",
@@ -23,12 +33,12 @@ export default {
     },
     data() {
         return {
-            books: [],
             currentPage: 1,
             itemsPerPage: 8
         }
     },
     computed: {
+        ...mapState(useBookStore, ['books', 'isLoading']),
         totalPages() {
             return Math.ceil(this.books.length / this.itemsPerPage)
         },
@@ -38,21 +48,10 @@ export default {
             return this.books.slice(startIndex, endIndex)
         }
     },
-    created() {
-        this.fetchBooks()
-    },
+
     methods: {
         updatePage(page) {
             this.currentPage = page
-        },
-        async fetchBooks() {
-            try {
-                const response = await fetch('http://localhost:3000/api/v1/books')
-                const data = await response.json()
-                this.books = data
-            } catch (error) {
-
-            }
         }
     }
 }
