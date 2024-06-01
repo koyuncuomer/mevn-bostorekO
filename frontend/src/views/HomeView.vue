@@ -1,6 +1,6 @@
 <template>
     <section>
-        <Carousel :items="carouselItems" height="400px"></Carousel>
+        <CarouselWidget :items="carouselItems" height="400px"></CarouselWidget>
     </section>
     <section class="my-5">
         <div class="container">
@@ -20,10 +20,8 @@
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <div v-if="isLoading" class="d-flex justify-content-center">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
+                    <div v-if="isLoading">
+                        <LoadingWidget />
                     </div>
                     <div v-else class="accordion">
                         <div class="accordion-item" v-for="(book, index) in filteredBooks" :key="index">
@@ -59,7 +57,8 @@
 </template>
 
 <script>
-import Carousel from "@/components/widgets/Carousel.vue"
+import CarouselWidget from "@/components/widgets/CarouselWidget.vue"
+import LoadingWidget from "@/components/widgets/LoadingWidget.vue"
 import SectionHeader from "@/components/SectionHeader.vue"
 
 import hero_1 from "@/assets/images/hero_1.jpg"
@@ -72,8 +71,9 @@ import { mapState } from "pinia";
 export default {
     name: "HomeView",
     components: {
-        Carousel,
-        SectionHeader
+        CarouselWidget,
+        SectionHeader,
+        LoadingWidget
     },
     data() {
         return {

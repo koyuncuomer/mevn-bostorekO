@@ -20,7 +20,7 @@
 
 <script>
 export default {
-    name: "Pagination",
+    name: "PaginationWidget",
     emits: ['page-changed'],
     props: {
         currentPage: {

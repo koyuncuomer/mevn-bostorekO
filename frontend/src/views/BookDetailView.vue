@@ -1,6 +1,9 @@
 <template>
     <section>
-        <div class="container" v-if="!loading">
+        <div class="container" v-if="isLoading">
+            <LoadingWidget />
+        </div>
+        <div class="container" v-else>
             <SectionHeader :title="book.title" :text="book.author" />
             <font-awesome-icon icon="arrow-left" size="2xl" class="mb-2" style="cursor: pointer;"
                 @click="goToBackBooks" />
@@ -95,14 +98,13 @@
                 </div>
             </div>
         </div>
-        <div class="container" v-else>
-            <p>Loading!</p>
-        </div>
+
     </section>
 </template>
 
 <script>
 import SectionHeader from '@/components/SectionHeader.vue';
+import LoadingWidget from "@/components/widgets/LoadingWidget.vue"
 
 import { useBookStore } from "@/stores/bookStore.js"
 import { mapState } from "pinia";
@@ -110,12 +112,12 @@ import { mapState } from "pinia";
 export default {
     name: "BookDetailView",
     components: {
-        SectionHeader
+        SectionHeader,
+        LoadingWidget
     },
     data() {
         return {
             book: null,
-            loading: true
         }
     },
     methods: {
@@ -126,12 +128,10 @@ export default {
         selectBook() {
             const bookId = this.$route.params.id;
             this.book = this.selectedBook(bookId)
-            this.loading = false
         }
     },
     computed: {
-        ...mapState(useBookStore, ['selectedBook']),
-        // 'isLoading'
+        ...mapState(useBookStore, ['selectedBook', 'isLoading']),
     },
     created() {
         this.selectBook()
