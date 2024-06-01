@@ -49,7 +49,7 @@ export default {
         async submitForm() {
             try {
                 await this.login(this.formData)
-                console.log('login success')
+                this.$router.push('/dashboard')
             } catch (error) {
                 console.log('Login failed!', error)
 
