@@ -5,6 +5,9 @@
                 <h1 class="display-3">Register</h1>
             </div>
             <form @submit.prevent="submitForm">
+                <div v-if="showGenericWarningMessage" class="text-center">
+                    <span class="text-danger small">Something happened, please try again later!</span>
+                </div>
                 <!-- Username Field -->
                 <div class="row justify-content-center">
                     <div class="col-md-6 col-8 mb-3">
