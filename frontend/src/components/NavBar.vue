@@ -18,6 +18,9 @@
                 <li class="nav-item" v-if="!isLoggedIn">
                     <RouterLink :to="{ name: 'register' }" class="nav-link">Register</RouterLink>
                 </li>
+                <li class="nav-item" v-if="isLoggedIn">
+                    <button @click="logoutUser" class="nav-link">Logout</button>
+                </li>
             </ul>
         </div>
 
@@ -26,7 +29,7 @@
 
 <script>
 import { useAuthStore } from '@/stores/authStore.js';
-import { mapState } from 'pinia';
+import { mapState, mapActions } from 'pinia';
 export default {
     name: "NavBar",
     data() {
@@ -36,6 +39,12 @@ export default {
     },
     computed: {
         ...mapState(useAuthStore, ['isLoggedIn']),
+    },
+    methods: {
+        ...mapActions(useAuthStore, ['logout']),
+        logoutUser() {
+            this.logout()
+        }
     }
 }
 </script>

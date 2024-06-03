@@ -37,5 +37,11 @@ export const useAuthStore = defineStore("authStore", {
         console.error("Error login!", error);
       }
     },
+
+    logout() {
+      this.user = null;
+      localStorage.removeItem("user");
+      location.reload();
+    },
   },
 });
