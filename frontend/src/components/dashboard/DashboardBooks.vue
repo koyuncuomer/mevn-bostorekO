@@ -150,7 +150,7 @@ export default {
                     rtl: false,
                 });
             } catch (error) {
-
+                console.error(error)
             }
         }
     }

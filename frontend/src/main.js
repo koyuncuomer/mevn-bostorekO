@@ -24,7 +24,34 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 /* add icons to the library */
 library.add(faArrowLeft, faThumbsUp, faPenToSquare, faTrash);
 
+import { useToast } from "vue-toastification";
+const toast = useToast();
+
 const pinia = createPinia();
+
+const authStore = useAuthStore(pinia);
+
+axios.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Display Toast Message
+      toast.error("Your token has expired, forwarding login page", {
+        position: "top-right",
+        timeout: 3000,
+        closeButton: "button",
+        icon: true,
+        rtl: false,
+      });
+
+      setTimeout(() => {
+        authStore.logout();
+        router.push("/login");
+      }, 3250);
+    }
+  }
+);
+
 const storedUser = localStorage.getItem("user");
 if (storedUser) {
   const userData = JSON.parse(storedUser);

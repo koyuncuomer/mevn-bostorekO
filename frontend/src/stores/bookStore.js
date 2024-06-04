@@ -44,7 +44,7 @@ export const useBookStore = defineStore("bookStore", {
         );
         this.books.push(response.data.book);
       } catch (error) {
-        console.error("Error addNewBook!", error);
+        throw error.response.data
       }
     },
   },
