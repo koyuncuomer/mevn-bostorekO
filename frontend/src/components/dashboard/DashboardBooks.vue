@@ -20,26 +20,24 @@
                         <th class="text-center">Delete</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <TransitionGroup name="list">
-                        <tr v-for="book in userBooks" :key="book._id">
-                            <td>{{ book.title }}</td>
-                            <td>{{ book.author }}</td>
-                            <td style="max-width: 250px">
-                                {{ book.description }}
-                            </td>
-                            <td>{{ book.pageNumber }}</td>
-                            <td class="text-center">
-                                <font-awesome-icon :icon="['far', 'pen-to-square']" class="text-warning"
-                                    style="cursor: pointer" />
-                            </td>
-                            <td class="text-center">
-                                <font-awesome-icon :icon="['fas', 'trash']" class="text-danger" style="cursor: pointer"
-                                    @click="deleteBook(book._id)" />
-                            </td>
-                        </tr>
-                    </TransitionGroup>
-                </tbody>
+                <TransitionGroup name="list" tag="tbody">
+                    <tr v-for="book in userBooks" :key="book._id">
+                        <td>{{ book.title }} ///{{ book._id }}</td>
+                        <td>{{ book.author }}</td>
+                        <td style="max-width: 250px">
+                            {{ book.description }}
+                        </td>
+                        <td>{{ book.pageNumber }}</td>
+                        <td class="text-center">
+                            <font-awesome-icon :icon="['far', 'pen-to-square']" class="text-warning"
+                                style="cursor: pointer" />
+                        </td>
+                        <td class="text-center">
+                            <font-awesome-icon :icon="['fas', 'trash']" class="text-danger" style="cursor: pointer"
+                                @click="deleteBook(book._id, book.title)" />
+                        </td>
+                    </tr>
+                </TransitionGroup>
             </table>
         </div>
     </div>
@@ -121,11 +119,13 @@ export default {
     computed: {
         ...mapState(useBookStore, ['userUploadedBooks']),
         userBooks() {
-            return this.userUploadedBooks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        }
+            return this.userUploadedBooks
+                .slice()
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        },
     },
     methods: {
-        ...mapActions(useBookStore, ['addNewBook', 'fetchBooksByUploader']),
+        ...mapActions(useBookStore, ['addNewBook', 'fetchBooksByUploader', 'deleteTheBook']),
         async addBook() {
             try {
                 await this.addNewBook(this.newBook)
@@ -141,18 +141,38 @@ export default {
 
                 await this.fetchBooksByUploader()
 
-                const toast = useToast();
-                toast.success('New book added successfully!', {
-                    position: 'top-right',
+                this.showToast('New book added successfully', {
+                    type: 'success',
                     timeout: 1000,
-                    closeButton: 'button',
-                    icon: true,
-                    rtl: false,
                 });
             } catch (error) {
                 console.error(error)
             }
-        }
+        },
+        async deleteBook(bookId, bookTitle) {
+            try {
+                await this.deleteTheBook(bookId)
+
+                await this.fetchBooksByUploader()
+
+                this.showToast(`${bookTitle} deleted succesfully`, {
+                    type: 'warning',
+                    timeout: 3000,
+                });
+            } catch (error) {
+                console.error(error)
+            }
+        },
+        showToast(message, options) {
+            const toast = useToast();
+            toast(message, {
+                position: 'top-right',
+                closeButton: 'button',
+                icon: true,
+                rtl: false,
+                ...options,
+            });
+        },
     }
 }
 </script>
@@ -166,14 +186,22 @@ export default {
 
 }
 
+.list-move,
+/* apply transition to moving elements */
 .list-enter-active,
-.list-leaave-active {
+.list-leave-active {
     transition: all 1s ease;
 }
 
 .list-enter-from,
 .list-leave-to {
     opacity: 0;
-    transform: translateX(300px);
+    transform: translateX(200px);
+}
+
+/* ensure leaving items are taken out of layout flow so that moving
+   animations can be calculated correctly. */
+.list-leave-active {
+    position: absolute;
 }
 </style>

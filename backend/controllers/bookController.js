@@ -106,7 +106,7 @@ const deleteABook = async (req, res) => {
     const book = await findDocumentById(Book, id, res);
     if (!book) return;
 
-    await Book.deleteOne();
+    await book.deleteOne();
     return res.status(200).json({ message: "Book deleted!" });
   } catch (error) {
     console.log("Error deleteABook", error);
