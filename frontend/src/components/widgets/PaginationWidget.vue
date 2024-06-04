@@ -40,8 +40,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.page-link {
-    cursor: pointer;
-}
-</style>
+<style scoped></style>
