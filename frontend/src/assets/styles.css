@@ -20,7 +20,7 @@ a {
     align-items: center;
 }
 
-.form-control {
+.form-control:not(textarea) {
     border-radius: 25px;
     height: 48px;
 }
