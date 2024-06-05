@@ -7,7 +7,16 @@ const router = express.Router();
 router.route("/book/:id").get(commentController.getCommentsForBook);
 
 router
+  .route("/user/:id")
+  .get(authMiddleware.authenticateUser, commentController.getCommentsByUser);
+
+router
   .route("/")
   .post(authMiddleware.authenticateUser, commentController.createAComment);
+
+router
+  .route("/:id")
+  .put(authMiddleware.authenticateUser, commentController.updateAComment)
+  .delete(authMiddleware.authenticateUser, commentController.deleteAComment);
 
 export default router;
