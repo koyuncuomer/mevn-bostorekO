@@ -1,6 +1,7 @@
 <template>
     <div class="container">
         <SectionHeader :title="book.title" :text="book.author" />
+
         <div class="d-flex">
             <font-awesome-icon icon="arrow-left" size="xl" class="mb-2"
                 style="cursor: pointer; color: var(--secondary-color)" @click="goToBackBooks" />
@@ -52,21 +53,27 @@
                 </div>
             </div>
         </div>
-        <hr />
+        <hr v-if="isLoggedIn" />
         <div class="row mt-3">
             <div class="col-md-12">
                 <div class="box">
-                    <h3 style="color: var(--primary-color)">Comment The Book</h3>
-                    <form>
-                        <!-- Comment Text Area -->
-                        <div class="mb-3">
-                            <textarea id="comment" class="form-control" rows="4" placeholder="Enter your comment"
-                                required></textarea>
-                        </div>
+                    <div v-if="isLoggedIn">
+                        <h3 style="color: var(--primary-color)">Comment The Book</h3>
+                        <form @submit.prevent="addComment()">
+                            <!-- Comment Text Area -->
+                            <div class="mb-3">
+                                <textarea v-model="commentContent" id="comment" class="form-control" rows="4"
+                                    placeholder="Enter your comment" required></textarea>
+                            </div>
 
-                        <!-- Submit Button -->
-                        <button type="submit" class="btn btn-primary">Comment</button>
-                    </form>
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary">Comment</button>
+                        </form>
+                    </div>
+                    <RouterLink v-else to="/login">
+                        <p style="color: var(--secondary-color)">Log in for comment</p>
+                    </RouterLink>
+
                 </div>
             </div>
         </div>
@@ -76,45 +83,18 @@
                 <div class="box">
                     <h3 style="color: var(--primary-color)">Comments</h3>
                     <div>
-                        <div class="card mb-4">
+                        <div class="card mb-4" v-for="comment in commentsForBook" :key="comment._id">
                             <div class="card-body">
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                                    do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                                    do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                </p>
+                                <p>{{ comment.content }}</p>
 
                                 <div class="d-flex justify-content-between">
                                     <div class="d-flex flex-row align-items-center">
-                                        <p class="small mb-0 ms-2">Username</p>
+                                        <p class="small mb-0 ms-2">{{ comment.postedBy.username }}</p>
                                     </div>
                                     <div class="d-flex flex-row align-items-center" style="gap: 10px">
                                         <p class="small text-muted mb-0">Upvote?</p>
                                         <font-awesome-icon :icon="['far', 'thumbs-up']" />
                                         <p class="small text-muted mb-0">3</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card mb-4">
-                            <div class="card-body">
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                                    do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                                    do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                                </p>
-
-                                <div class="d-flex justify-content-between">
-                                    <div class="d-flex flex-row align-items-center">
-                                        <p class="small mb-0 ms-2">Username</p>
-                                    </div>
-                                    <div class="d-flex flex-row align-items-center" style="gap: 10px">
-                                        <p class="small mb-0">Upvoted</p>
-                                        <font-awesome-icon :icon="['fas', 'thumbs-up']"
-                                            style="color: var(--secondary-color)" />
-                                        <p class="small text-muted mb-0">4</p>
                                     </div>
                                 </div>
                             </div>
@@ -129,7 +109,10 @@
 <script>
 import SectionHeader from '@/components/SectionHeader.vue';
 import { useBookStore } from '@/stores/bookStore.js';
-import { mapState } from 'pinia';
+import { useAuthStore } from '@/stores/authStore.js';
+import { useCommentStore } from '@/stores/commentStore.js';
+import { mapState, mapActions } from 'pinia';
+import { RouterLink } from 'vue-router';
 export default {
     name: 'BookDetailView',
     components: {
@@ -139,12 +122,20 @@ export default {
         return {
             book: null,
             loading: true,
+            commentContent: ""
         };
     },
     created() {
         this.selectBook();
+        this.fetchCommentsForBook(this.$route.params.id)
+    },
+    computed: {
+        ...mapState(useBookStore, ['selectedBook']),
+        ...mapState(useAuthStore, ['user', "isLoggedIn"]),
+        ...mapState(useCommentStore, ['commentsForBook']),
     },
     methods: {
+        ...mapActions(useCommentStore, ['addNewComment', "fetchCommentsForBook"]),
         goToBackBooks() {
             this.$router.push({ name: 'books' });
         },
@@ -153,10 +144,25 @@ export default {
             this.book = this.selectedBook(bookId);
             this.loading = false;
         },
+        async addComment() {
+            try {
+                const bookId = this.$route.params.id
+                const content = this.commentContent
+                const userId = this.user._id
+
+                await this.addNewComment({
+                    bookId, content, userId
+                })
+
+                this.commentContent = ""
+
+                await this.fetchCommentsForBook(this.$route.params.id)
+            } catch (error) {
+                console.log('bookdetailview addComment', error)
+            }
+        }
     },
-    computed: {
-        ...mapState(useBookStore, ['selectedBook']),
-    },
+
 };
 </script>
 
