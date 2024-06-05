@@ -106,9 +106,44 @@
                                         <p class="small mb-0 ms-2">{{ comment.postedBy.username }}</p>
                                     </div>
                                     <div class="d-flex flex-row align-items-center" style="gap: 10px">
-                                        <p class="small text-muted mb-0">Upvote?</p>
-                                        <font-awesome-icon :icon="['far', 'thumbs-up']" />
-                                        <p class="small text-muted mb-0">3</p>
+
+                                        <div class="d-flex flex-row align-items-center" style="gap: 10px" v-if="!user">
+                                            <p class="small mb-0">Login for upvote!</p>
+                                            <font-awesome-icon :icon="['fas', 'thumbs-up']"
+                                                style="color: var(--secondary-color)" />
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center"
+                                            style="gap: 10px; cursor: pointer" v-else-if="
+                                                !comment.upvotes.includes(user._id) &&
+                                                comment.postedBy._id !== user._id
+                                            " @click="upvote(comment._id)">
+                                            <p class="small mb-0">Upvote?</p>
+                                            <font-awesome-icon :icon="['far', 'thumbs-up']" />
+                                        </div>
+
+                                        <div class="d-flex flex-row align-items-center"
+                                            style="gap: 10px; cursor: pointer" v-else-if="
+                                                comment.upvotes.includes(user._id) &&
+                                                comment.postedBy._id !== user._id
+                                            " @click="downvote(comment._id)">
+                                            <p class="small mb-0">Upvoted</p>
+                                            <font-awesome-icon :icon="['fas', 'thumbs-up']"
+                                                style="color: var(--secondary-color)" />
+                                        </div>
+
+                                        <div v-else class="d-flex flex-row align-items-center" style="gap: 10px">
+                                            <p class="small mb-0">
+                                                You can't upvote for your comment
+                                            </p>
+                                            <font-awesome-icon :icon="['fas', 'thumbs-up']"
+                                                style="color: var(--secondary-color)" />
+                                        </div>
+
+                                        <p class="small text-muted mb-0">
+                                            {{ comment.upvotes.length }}
+                                        </p>
+
                                     </div>
                                 </div>
                             </div>
@@ -191,7 +226,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(useCommentStore, ['addNewComment', "fetchCommentsForBook"]),
+        ...mapActions(useCommentStore, ['addNewComment', "fetchCommentsForBook", "upvoteComment", "downvoteComment"]),
         ...mapActions(useRatingStore, ['addNewRate', "fetchRatingsForBook", "editTheRate", "deleteTheRate"]),
         goToBackBooks() {
             this.$router.push({ name: 'books' });
@@ -263,6 +298,24 @@ export default {
                 });
             } catch (error) {
                 console.error(error)
+            }
+        },
+        async upvote(commentId) {
+            try {
+                await this.upvoteComment(commentId)
+
+                await this.fetchCommentsForBook(this.$route.params.id)
+            } catch (error) {
+
+            }
+        },
+        async downvote(commentId) {
+            try {
+                await this.downvoteComment(commentId)
+
+                await this.fetchCommentsForBook(this.$route.params.id)
+            } catch (error) {
+
             }
         },
         showToast(message, options) {

@@ -97,6 +97,50 @@ const deleteAComment = async (req, res) => {
   }
 };
 
+const upvoteComment = async (req, res) => {
+  const commentId = req.params.id;
+  const userId = req.user._id;
+
+  if (isValidObjectId(commentId, res)) return;
+
+  try {
+    const comment = await findDocumentById(Comment, commentId, res);
+    if (!comment) return;
+
+    comment.upvotes.push(userId);
+
+    await comment.save();
+
+    return res.status(200).json({ message: "Upvoted succesfully", comment });
+  } catch (error) {
+    console.log("Error upvoteComment", error);
+    return res.status(500).json({ error: "Internal Server error" });
+  }
+};
+
+const downvoteComment = async (req, res) => {
+  const commentId = req.params.id;
+  const userId = req.user._id;
+
+  if (isValidObjectId(commentId, res)) return;
+
+  try {
+    const comment = await findDocumentById(Comment, commentId, res);
+    if (!comment) return;
+
+    comment.upvotes = comment.upvotes.filter(
+      (upvote) => upvote.toString() !== userId.toString()
+    );
+
+    await comment.save();
+
+    return res.status(200).json({ message: "Dowvoted succesfully", comment });
+  } catch (error) {
+    console.log("Error upvoteComment", error);
+    return res.status(500).json({ error: "Internal Server error" });
+  }
+};
+
 export {
   getAllComments,
   createAComment,
@@ -104,4 +148,6 @@ export {
   getCommentsByUser,
   updateAComment,
   deleteAComment,
+  upvoteComment,
+  downvoteComment,
 };

@@ -20,4 +20,12 @@ router
   .put(authMiddleware.authenticateUser, commentController.updateAComment)
   .delete(authMiddleware.authenticateUser, commentController.deleteAComment);
 
+router
+  .route("/:id/upvote")
+  .post(authMiddleware.authenticateUser, commentController.upvoteComment);
+
+router
+  .route("/:id/downvote")
+  .post(authMiddleware.authenticateUser, commentController.downvoteComment);
+
 export default router;
