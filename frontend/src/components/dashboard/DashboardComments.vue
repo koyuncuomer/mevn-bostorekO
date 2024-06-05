@@ -12,7 +12,7 @@
                 </thead>
                 <TransitionGroup name="list" tag="tbody">
                     <tr v-for="comment in paginatedComments" :key="comment._id">
-                        <td>{{ comment.content }} /// {{ comment._id }}</td>
+                        <td>{{ comment.content }}</td>
                         <td>{{ comment.book.title }}</td>
                         <td class="text-center">
                             <font-awesome-icon :icon="['far', 'pen-to-square']" class="text-warning"
@@ -82,7 +82,7 @@ export default {
             },
             editedCommentId: null,
             currentPage: 1,
-            itemsPerPage: 2
+            itemsPerPage: 10
         }
     },
     mounted() {

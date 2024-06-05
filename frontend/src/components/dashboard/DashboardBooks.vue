@@ -119,7 +119,7 @@ export default {
             },
             editedBookId: null,
             currentPage: 1,
-            itemsPerPage: 2
+            itemsPerPage: 10
         }
     },
     mounted() {
