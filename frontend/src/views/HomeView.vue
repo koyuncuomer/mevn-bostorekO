@@ -134,16 +134,13 @@ export default {
     },
 
     computed: {
-        ...mapState(useBookStore, ['books', 'isLoading']),
+        ...mapState(useBookStore, ['books', 'isLoading', 'latest4Books', 'rated4Books']),
         ...mapState(useCommentStore, ['comments']),
         filteredBooks() {
-            const copiedBooks = [...this.books]
-
             if (this.selectedFilter === 'latest') {
-                return copiedBooks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4)
+                return this.latest4Books;
             } else if (this.selectedFilter === 'best') {
-                return copiedBooks.sort((a, b) => b.rating - a.rating).slice(0, 4)
-
+                return this.rated4Books;
             }
         },
         prepare4Comments() {
