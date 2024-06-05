@@ -1,5 +1,18 @@
 import Comment from "../models/Comment.js";
 import { isValidObjectId, findDocumentById } from "../utils/index.js";
+const getAllComments = async (req, res) => {
+  try {
+    const comments = await Comment.find()
+      .populate("book", "title")
+      .populate("postedBy", "username");
+
+    return res.status(200).json(comments);
+  } catch (error) {
+    console.log("Error getAllComments", error);
+    return res.status(500).json({ error: "Internal Server error" });
+  }
+};
+
 const createAComment = async (req, res) => {
   try {
     const { bookId, content, userId } = req.body;
@@ -85,6 +98,7 @@ const deleteAComment = async (req, res) => {
 };
 
 export {
+  getAllComments,
   createAComment,
   getCommentsForBook,
   getCommentsByUser,

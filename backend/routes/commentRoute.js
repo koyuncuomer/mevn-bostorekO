@@ -12,6 +12,7 @@ router
 
 router
   .route("/")
+  .get(commentController.getAllComments)
   .post(authMiddleware.authenticateUser, commentController.createAComment);
 
 router

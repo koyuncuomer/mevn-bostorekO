@@ -7,6 +7,7 @@ import router from "@/router/index.js";
 import { createPinia } from "pinia";
 import { useBookStore } from "@/stores/bookStore.js";
 import { useAuthStore } from "@/stores/authStore.js";
+import { useCommentStore } from "@/stores/commentStore.js";
 
 import axios from "axios";
 import Toast from "vue-toastification";
@@ -17,8 +18,15 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 /* import font awesome icon component */
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 /* import specific icons */
-import { faArrowLeft, faTrash, faThumbsUp } from "@fortawesome/free-solid-svg-icons";
-import { faThumbsUp as farThumbsUp , faPenToSquare } from "@fortawesome/free-regular-svg-icons";
+import {
+  faArrowLeft,
+  faTrash,
+  faThumbsUp,
+} from "@fortawesome/free-solid-svg-icons";
+import {
+  faThumbsUp as farThumbsUp,
+  faPenToSquare,
+} from "@fortawesome/free-regular-svg-icons";
 /* add icons to the library */
 library.add(faArrowLeft, faThumbsUp, faPenToSquare, faTrash, farThumbsUp);
 
@@ -61,12 +69,21 @@ if (storedUser) {
   }
 }
 const bookStore = useBookStore(pinia);
+const commentStore = useCommentStore(pinia);
 
-bookStore.fetchBooks().then(() => {
-  const app = createApp(App);
-  app.use(pinia);
-  app.use(router);
-  app.component("font-awesome-icon", FontAwesomeIcon);
-  app.use(Toast);
-  app.mount("#app");
-});
+const init = async () => {
+  try {
+    await Promise.all([bookStore.fetchBooks(), commentStore.fetchComments()]);
+
+    const app = createApp(App);
+    app.use(pinia);
+    app.use(router);
+    app.component("font-awesome-icon", FontAwesomeIcon);
+    app.use(Toast);
+    app.mount("#app");
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+init();
