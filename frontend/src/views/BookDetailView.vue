@@ -9,7 +9,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="image-box">
-                    <img class="img-fluid" src="../../template/images/b_detail.jpg" />
+                    <img class="img-fluid" :src="book.imageUrl" />
                 </div>
             </div>
             <div class="col-md-6">

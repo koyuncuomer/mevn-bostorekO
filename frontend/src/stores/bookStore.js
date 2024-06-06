@@ -14,13 +14,13 @@ export const useBookStore = defineStore("bookStore", {
       return (id) => state.books.find((book) => book._id === id);
     },
     latest4Books: (state) => {
-      const tempBooks = [...state.books]
+      const tempBooks = [...state.books];
       return tempBooks
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
         .slice(0, 4);
     },
     rated4Books: (state) => {
-      const tempBooks = [...state.books]
+      const tempBooks = [...state.books];
       const sortedBooks = tempBooks.sort((a, b) => {
         const averageRatingA =
           a.ratings.reduce((sum, rating) => sum + rating.rate, 0) /
@@ -77,10 +77,16 @@ export const useBookStore = defineStore("bookStore", {
     },
     async addNewBook(newBook) {
       try {
+        // const response = await axios.post(
+        //   "http://localhost:3000/api/v1/books",
+        //   newBook
+        // );
         const response = await axios.post(
           "http://localhost:3000/api/v1/books",
-          newBook
+          newBook,
+          { headers: { "Content-Type": "multipart/form-data" } }
         );
+
         this.books.push(response.data.book);
       } catch (error) {
         throw error.response.data;
@@ -92,6 +98,7 @@ export const useBookStore = defineStore("bookStore", {
           `http://localhost:3000/api/v1/books/${bookId}`,
           bookData
         );
+
         const updatedBookData = response.data.book;
 
         const bookIndex = this.books.findIndex((book) => book._id === bookId);

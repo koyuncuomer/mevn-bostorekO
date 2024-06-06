@@ -4,6 +4,8 @@ import {
   checkValidationErrors,
 } from "../utils/index.js";
 import Book from "../models/Book.js";
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
 const getAllBooks = async (req, res) => {
   try {
@@ -43,9 +45,20 @@ const getABook = async (req, res) => {
 };
 
 const createABook = async (req, res) => {
+  const cloudinaryRes = await cloudinary.uploader
+    .upload(req.files.image.tempFilePath, {
+      user_filename: true,
+      folder: "bostorekO",
+    })
+    .catch((error) => {
+      console.log("cloudinary upload error", error);
+      return res.status(500).json({ error });
+    });
+
   try {
     const { title, author, description, pageNumber } = req.body;
     const uploader = req.user._id;
+    const imageUrl = cloudinaryRes.secure_url;
 
     const existingBook = await Book.findOne({ title, author });
     if (existingBook) {
@@ -58,7 +71,10 @@ const createABook = async (req, res) => {
       description,
       pageNumber,
       uploader,
+      imageUrl,
     });
+
+    fs.unlinkSync(req.files.image.tempFilePath);
 
     return res.status(201).json({ message: "Book created!", book: newBook });
   } catch (error) {

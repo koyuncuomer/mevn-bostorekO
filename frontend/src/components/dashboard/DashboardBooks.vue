@@ -55,40 +55,49 @@
                     <button @click="modal.hide()" type="button" class="btn-close" aria-label="Close"></button>
                 </div>
                 <div class="modal-body mx-5">
-                    <div class="col mb-3">
-                        <label for="title" class="form-label">Title
-                            <span class="text-danger">*</span>
-                        </label>
-                        <input v-model="bookData.title" type="text" class="form-control" id="title" name="title"
-                            required />
-                    </div>
-                    <div class="col mb-3">
-                        <label for="author" class="form-label">Author
-                            <span class="text-danger">*</span>
-                        </label>
-                        <input v-model="bookData.author" type="text" class="form-control" id="author" name="author"
-                            required />
-                    </div>
-                    <div class="col mb-3">
-                        <label for="description" class="form-label">Description
-                            <span class="text-danger">*</span>
-                        </label>
-                        <textarea v-model="bookData.description" name="description" id="description"
-                            class="form-control" cols="30" rows="4"></textarea>
-                    </div>
-                    <div class="col mb-3">
-                        <label for="author" class="form-label">Number of Pages
-                            <span class="text-danger">*</span>
-                        </label>
-                        <input v-model="bookData.pageNumber" type="number" class="form-control" id="numOfPages"
-                            name="numOfPages" required />
-                    </div>
-                    <div class="text-end mb-4">
-                        <button @click="modal.hide()" type="button" class="btn btn-outline-secondary">
-                            Close
-                        </button>
-                        <button @click="saveBook()" type="button" class="btn btn-primary">Save</button>
-                    </div>
+                    <form @submit.prevent="saveBook()">
+                        <div class="col mb-3">
+                            <label for="title" class="form-label">Title
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input v-model="bookData.title" type="text" class="form-control" id="title" name="title"
+                                required />
+                        </div>
+                        <div class="col mb-3">
+                            <label for="author" class="form-label">Author
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input v-model="bookData.author" type="text" class="form-control" id="author" name="author"
+                                required />
+                        </div>
+                        <div class="col mb-3">
+                            <label for="description" class="form-label">Description
+                                <span class="text-danger">*</span>
+                            </label>
+                            <textarea v-model="bookData.description" name="description" id="description"
+                                class="form-control" cols="30" rows="4"></textarea>
+                        </div>
+                        <div class="col mb-3">
+                            <label for="author" class="form-label">Number of Pages
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input v-model="bookData.pageNumber" type="number" class="form-control" id="numOfPages"
+                                name="numOfPages" required />
+                        </div>
+                        <div class="col mb-3" v-if="modalTitle === 'Add Book'">
+                            <label for="image" class="form-label">Image
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="file" class="form-control" id="image" name="image" required
+                                @change="handleFileUpload" />
+                        </div>
+                        <div class="text-end mb-4">
+                            <button @click="modal.hide()" type="button" class="btn btn-outline-secondary">
+                                Close
+                            </button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -115,7 +124,8 @@ export default {
                 title: '',
                 author: '',
                 description: '',
-                pageNumber: null
+                pageNumber: null,
+                image: null
             },
             editedBookId: null,
             currentPage: 1,
@@ -146,13 +156,17 @@ export default {
     },
     methods: {
         ...mapActions(useBookStore, ['addNewBook', 'fetchBooksByUploader', 'deleteTheBook', 'editTheBook']),
+        handleFileUpload(event) {
+            this.bookData.image = event.target.files[0];
+        },
         openAddModal() {
             this.modalTitle = "Add Book"
             this.bookData = {
                 title: '',
                 author: '',
                 description: '',
-                pageNumber: null
+                pageNumber: null,
+                image: null
             }
             this.modal.show();
         },
@@ -176,7 +190,12 @@ export default {
         },
         async addBook() {
             try {
-                await this.addNewBook(this.bookData)
+                const formData = new FormData();
+                for (let key in this.bookData) {
+                    formData.append(key, this.bookData[key]);
+                }
+                await this.addNewBook(formData);
+                //await this.addNewBook(this.bookData)
 
                 this.currentPage = 1
                 this.modal.hide()
@@ -185,7 +204,8 @@ export default {
                     title: '',
                     author: '',
                     description: '',
-                    pageNumber: null
+                    pageNumber: null,
+                    image: null
                 }
 
                 await this.fetchBooksByUploader()

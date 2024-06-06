@@ -36,7 +36,7 @@
                                 <div class="accordion-body">
                                     <div class="row">
                                         <div class="col-md-4">
-                                            <img src="../assets/images/b1.jpg" class="img-fluid" />
+                                            <img :src="book.imageUrl" class="img-fluid" />
                                         </div>
                                         <div class="col-md-8 d-flex flex-column justify-content-center">
                                             <p>{{ book.description }}</p>
