@@ -42,25 +42,18 @@
     </section>
 </template>
 
-<script>
+<script setup>
 import DashboardGeneral from "@/components/dashboard/DashboardGeneral.vue"
 import DashboardBooks from "@/components/dashboard/DashboardBooks.vue"
 import DashboardComments from "@/components/dashboard/DashboardComments.vue"
 
-export default {
-    name: "DashboardView",
-    data() {
-        return {
-            activeTab: 'comments',
-        };
-    },
-    components: {
-        DashboardGeneral,
-        DashboardBooks,
-        DashboardComments
-    }
+import { ref } from 'vue';
 
-}
+const activeTab = ref('general');
+
+const setActiveTab = (tab) => {
+    activeTab.value = tab;
+};
 </script>
 
 <style scoped>

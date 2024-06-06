@@ -52,65 +52,54 @@
     </section>
 </template>
 
-<script>
-import { useAuthStore } from '@/stores/authStore.js';
-import { mapActions } from 'pinia';
-import { useToast } from 'vue-toastification';
-export default {
-    name: "LoginView",
-    data() {
-        return {
-            formData: {
-                email: '',
-                password: '',
-            },
-            showEmailWarningMessage: false,
-            showPasswordWarningMessage: false,
-            notFoundEmail: null,
-            isPasswordMatch: true,
-        };
-    },
-    methods: {
-        ...mapActions(useAuthStore, ['login']),
-        async submitForm() {
-            try {
-                await this.login(this.formData);
-                const toast = useToast();
-                toast.success('You will be redirected to the dashboard page', {
-                    position: 'top-right',
-                    timeout: 1500,
-                    closeButton: 'button',
-                    icon: true,
-                    rtl: false,
-                });
-                setTimeout(() => {
-                    this.$router.push('/dashboard');
-                }, 2000);
-            } catch (e) {
-                const { error } = e;
-                if (error === 'User not found!') {
-                    this.notFoundEmail = this.formData.email;
-                } else if (error === 'Password is not true!') {
-                    this.isPasswordMatch = false;
-                }
-            }
-        },
-    },
-    computed: {
-        isFormValid() {
-            return this.isEmailValid && this.isPasswordValid;
-        },
-        isEmailValid() {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.formData.email);
-        },
-        isPasswordValid() {
-            return (
-                this.formData.password.length >= 4 &&
-                this.formData.password.length <= 10
-            );
-        },
-    },
-};
+<script setup>
+import { useAuthStore } from '@/stores/authStore.js'
+import { useToast } from 'vue-toastification'
+import { ref, reactive, computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const formData = reactive({
+  email: '',
+  password: '',
+});
+
+const showEmailWarningMessage = ref(false)
+const showPasswordWarningMessage = ref(false)
+const notFoundEmail = ref(null)
+const isPasswordMatch = ref(true)
+
+const authStore = useAuthStore()
+const router = useRouter()
+
+const submitForm = async () => {
+    try {
+        await authStore.login(formData);
+        const toast = useToast();
+        toast.success('You will be redirected to the dashboard page', {
+            position: 'top-right',
+            timeout: 1500,
+            closeButton: 'button',
+            icon: true,
+            rtl: false,
+        });
+        setTimeout(() => {
+            router.push('/dashboard');
+        }, 2000);
+    } catch (e) {
+        const { error } = e;
+        if (error === 'User not found!') {
+            notFoundEmail.value = formData.email;
+        } else if (error === 'Password is not true!') {
+            isPasswordMatch.value = false;
+        }
+    }
+}
+
+const isFormValid = computed(() => isEmailValid.value && isPasswordValid.value)
+const isEmailValid = computed(() => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
+const isPasswordValid = computed(() => formData.password.length >= 4 && formData.password.length <= 10)
+
 </script>
+
 
 <style scoped></style>
