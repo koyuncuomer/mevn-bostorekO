@@ -30,7 +30,7 @@
                         </div>
                         <div class="row border-bottom pb-2">
                             <div class="col-lg-6"><strong>Upload Date</strong></div>
-                            <div class="col-lg-6">{{ book.updatedAt }}</div>
+                            <div class="col-lg-6">{{ formatDate(book.updatedAt) }}</div>
                         </div>
                     </div>
                 </div>
@@ -155,182 +155,193 @@
     </div>
 </template>
 
-<script>
+<script setup>
 import SectionHeader from '@/components/SectionHeader.vue';
 import { useBookStore } from '@/stores/bookStore.js';
 import { useAuthStore } from '@/stores/authStore.js';
 import { useCommentStore } from '@/stores/commentStore.js';
 import { useRatingStore } from '@/stores/ratingStore.js';
-import { mapState, mapActions } from 'pinia';
-import { RouterLink } from 'vue-router';
 import { useToast } from "vue-toastification";
+import { ref, reactive, computed } from 'vue';
+import { useRoute, useRouter } from "vue-router"
 
-export default {
-    name: 'BookDetailView',
-    components: {
-        SectionHeader,
-    },
-    data() {
-        return {
-            book: null,
-            loading: true,
-            commentContent: "",
-            userRate: {
-                _id: null,
-                rate: null
-            }
-        };
-    },
-    created() {
-        this.selectBook();
-        this.fetchCommentsForBook(this.$route.params.id)
-        this.fetchRatingsForBook(this.$route.params.id)
-    },
-    computed: {
-        ...mapState(useBookStore, ['selectedBook']),
-        ...mapState(useAuthStore, ['user', "isLoggedIn"]),
-        ...mapState(useCommentStore, ['commentsForBook']),
-        ...mapState(useRatingStore, ['ratingsForBook']),
+const book = ref(null)
+const loading = ref(true)
+const commentContent = ref("")
+let userRate = reactive({
+    _id: null,
+    rate: null
+})
 
-        averageRating() {
-            if (this.ratingsForBook.length > 0) {
-                const totalRating = this.ratingsForBook.reduce((sum, rating) => sum + rating.rate, 0)
+const bookStore = useBookStore()
+const authStore = useAuthStore()
+const commentStore = useCommentStore()
+const ratingStore = useRatingStore()
+const route = useRoute()
+const router = useRouter()
 
-                return (totalRating / this.ratingsForBook.length).toFixed(1)
-            }
-            else return 0
-        },
-        ratingCount() {
-            return this.ratingsForBook ? this.ratingsForBook.length : 0
-        },
-        isUserAlreadyRated() {
-            if (!this.user)
-                return false
+const goToBackBooks = () => {
+    router.push({ name: 'books' });
+}
 
-            const userRatingObj = this.ratingsForBook.find((rating) => rating.ratedBy._id === this.user._id)
+const selectBook = () => {
+    const bookId = route.params.id;
+    book.value = bookStore.selectedBook(bookId);
+    loading.value = false;
+}
 
-            if (userRatingObj) {
-                this.userRate = { ...userRatingObj }
-                return true
-            } else {
-                this.userRate = { _id: null, rate: null }
-                return false
-            }
-        },
-        userRating() {
-            if (!this.user)
-                return null
+const addComment = async () => {
+    try {
+        const bookId = route.params.id
+        const content = commentContent.value
+        const userId = authStore.user._id
 
-            const userRatingObj = this.ratingsForBook.find((rating) => rating.ratedBy._id === this.user._id)
-            return userRatingObj ? userRatingObj.rate : null
+        await commentStore.addNewComment({
+            bookId, content, userId
+        })
+
+        commentContent.value = ""
+
+        await commentStore.fetchCommentsForBook(route.params.id)
+
+        showToast('Comment added successfully', {
+            type: 'success',
+            timeout: 1000,
+        });
+    } catch (error) {
+        console.log('bookdetailview addComment', error)
+    }
+}
+
+const addEditRate = async () => {
+    try {
+        if (userRate._id) {
+            const rate = userRate.rate
+            await ratingStore.editTheRate(userRate._id, { rate })
+        } else {
+            const bookId = route.params.id
+            const rate = userRate.rate
+            const userId = authStore.user._id
+
+            await ratingStore.addNewRate({
+                bookId, rate, userId
+            })
         }
-    },
-    methods: {
-        ...mapActions(useCommentStore, ['addNewComment', "fetchCommentsForBook", "upvoteComment", "downvoteComment"]),
-        ...mapActions(useRatingStore, ['addNewRate', "fetchRatingsForBook", "editTheRate", "deleteTheRate"]),
-        goToBackBooks() {
-            this.$router.push({ name: 'books' });
-        },
-        selectBook() {
-            const bookId = this.$route.params.id;
-            this.book = this.selectedBook(bookId);
-            this.loading = false;
-        },
-        async addComment() {
-            try {
-                const bookId = this.$route.params.id
-                const content = this.commentContent
-                const userId = this.user._id
 
-                await this.addNewComment({
-                    bookId, content, userId
-                })
+        await ratingStore.fetchRatingsForBook(route.params.id)
 
-                this.commentContent = ""
+        showToast('Rating successfully', {
+            type: 'success',
+            timeout: 1000,
+        });
+    } catch (error) {
+        console.log('bookdetailview addEditRate', error)
+    }
+}
 
-                await this.fetchCommentsForBook(this.$route.params.id)
+const deleteRate = async () => {
+    try {
+        await ratingStore.deleteTheRate(userRate._id)
 
-                this.showToast('Comment added successfully', {
-                    type: 'success',
-                    timeout: 1000,
-                });
-            } catch (error) {
-                console.log('bookdetailview addComment', error)
-            }
-        },
-        async addEditRate() {
-            console.log('addEditRate method', this.userRate)
-            try {
-                if (this.userRate._id) {
-                    const rate = this.userRate.rate
-                    await this.editTheRate(this.userRate._id, { rate })
-                } else {
-                    const bookId = this.$route.params.id
-                    const rate = this.userRate.rate
-                    const userId = this.user._id
+        await ratingStore.fetchRatingsForBook(route.params.id)
 
-                    await this.addNewRate({
-                        bookId, rate, userId
-                    })
-                }
+        userRate = { _id: null, rate: null }
 
-                await this.fetchRatingsForBook(this.$route.params.id)
+        showToast(`Rating deleted succesfully`, {
+            type: 'warning',
+            timeout: 1000,
+        });
+    } catch (error) {
+        console.error(error)
+    }
+}
 
-                this.showToast('Rating successfully', {
-                    type: 'success',
-                    timeout: 1000,
-                });
-            } catch (error) {
-                console.log('bookdetailview addEditRate', error)
-            }
-        },
-        async deleteRate() {
-            try {
-                await this.deleteTheRate(this.userRate._id)
+const upvote = async (commentId) => {
+    try {
+        await commentStore.upvoteComment(commentId)
 
-                await this.fetchRatingsForBook(this.$route.params.id)
+        await commentStore.fetchCommentsForBook(route.params.id)
+    } catch (error) {
 
-                this.userRate = { _id: null, rate: null }
+    }
+}
 
-                this.showToast(`Rating deleted succesfully`, {
-                    type: 'warning',
-                    timeout: 1000,
-                });
-            } catch (error) {
-                console.error(error)
-            }
-        },
-        async upvote(commentId) {
-            try {
-                await this.upvoteComment(commentId)
+const downvote = async (commentId) => {
+    try {
+        await commentStore.downvoteComment(commentId)
 
-                await this.fetchCommentsForBook(this.$route.params.id)
-            } catch (error) {
+        await commentStore.fetchCommentsForBook(route.params.id)
+    } catch (error) {
 
-            }
-        },
-        async downvote(commentId) {
-            try {
-                await this.downvoteComment(commentId)
+    }
+}
 
-                await this.fetchCommentsForBook(this.$route.params.id)
-            } catch (error) {
+const showToast = (message, options) => {
+    const toast = useToast();
+    toast(message, {
+        position: 'top-right',
+        closeButton: 'button',
+        icon: true,
+        rtl: false,
+        ...options,
+    });
+}
 
-            }
-        },
-        showToast(message, options) {
-            const toast = useToast();
-            toast(message, {
-                position: 'top-right',
-                closeButton: 'button',
-                icon: true,
-                rtl: false,
-                ...options,
-            });
-        },
-    },
+const formatDate = (date_) => {
+    const date = new Date(date_);
+    const formatter = new Intl.DateTimeFormat('tr-TR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    return formatter.format(date);
+}
 
-};
+const averageRating = computed(() => {
+    if (ratingStore.ratingsForBook.length > 0) {
+        const totalRating = ratingStore.ratingsForBook.reduce((sum, rating) => sum + rating.rate, 0)
+
+        return (totalRating / ratingStore.ratingsForBook.length).toFixed(1)
+    }
+    else return 0
+})
+
+const ratingCount = computed(() => {
+    return ratingStore.ratingsForBook ? ratingStore.ratingsForBook.length : 0
+})
+
+const isUserAlreadyRated = computed(() => {
+    if (!authStore.user)
+        return false
+
+    const userRatingObj = ratingStore.ratingsForBook.find((rating) => rating.ratedBy._id === authStore.user._id)
+
+    if (userRatingObj) {
+        userRate = { ...userRatingObj }
+        return true
+    } else {
+        userRate = { _id: null, rate: null }
+        return false
+    }
+})
+
+const userRating = computed(() => {
+    if (!authStore.user)
+        return null
+
+    const userRatingObj = ratingStore.ratingsForBook.find((rating) => rating.ratedBy._id === authStore.user._id)
+    return userRatingObj ? userRatingObj.rate : null
+})
+
+const isLoggedIn = computed(() => authStore.isLoggedIn)
+const commentsForBook = computed(() => commentStore.commentsForBook)
+const user = computed(() => authStore.user)
+
+
+selectBook();
+commentStore.fetchCommentsForBook(route.params.id)
+ratingStore.fetchRatingsForBook(route.params.id)
+
 </script>
 
 <style scoped>

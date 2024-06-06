@@ -69,7 +69,7 @@
                                 <div>
                                     <h6 class="fw-bold text-primary mb-1">{{ comment.book.title }}</h6>
                                     <p class="text-muted small mb-0">
-                                        {{ comment.postedBy.username }} - {{ comment.createdAt }}
+                                        {{ comment.postedBy.username }} - {{ formatDate(comment.createdAt) }}
                                     </p>
                                 </div>
                             </div>
@@ -118,6 +118,18 @@ const toggleAccordion = (index) => {
     else {
         openAccordionIndex.value = index
     }
+}
+
+const formatDate = (date_) => {
+    const date = new Date(date_);
+    const formatter = new Intl.DateTimeFormat('tr-TR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    return formatter.format(date);
 }
 
 const commentStore = useCommentStore()

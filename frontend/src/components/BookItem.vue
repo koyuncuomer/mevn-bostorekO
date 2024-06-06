@@ -13,7 +13,7 @@
             <div class="d-flex justify-content-between align-items-center">
                 <a href="#" class="card-link">Read More</a>
                 <p style="background-color: var(--primary-color);" class="py-1 px-2 text-white badge mb-0">{{
-                    book.createdAt }}</p>
+                    formatDate(book.createdAt) }}</p>
             </div>
         </div>
         <span :class="ratingBadgeClass"
@@ -60,6 +60,17 @@ export default {
 
             return this.book.description
         }
+    },
+    methods: {
+        formatDate(date_) {
+            const date = new Date(date_);
+            const formatter = new Intl.DateTimeFormat('tr-TR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            return formatter.format(date);
+        }
     }
 }
 </script>
@@ -74,10 +85,10 @@ export default {
 }
 
 .custom-center {
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>

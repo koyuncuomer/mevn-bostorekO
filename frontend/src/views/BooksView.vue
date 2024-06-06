@@ -38,4 +38,7 @@ const paginatedBooks = computed(() => {
 const updatePage = (page) => {
     currentPage.value = page
 }
+
+const isLoading = computed(() => bookStore.isLoading)
+
 </script>
