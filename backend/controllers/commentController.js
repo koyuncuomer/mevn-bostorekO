@@ -134,9 +134,9 @@ const downvoteComment = async (req, res) => {
 
     await comment.save();
 
-    return res.status(200).json({ message: "Dowvoted succesfully", comment });
+    return res.status(200).json({ message: "Downvoted succesfully", comment });
   } catch (error) {
-    console.log("Error upvoteComment", error);
+    console.log("Error downvoteComment", error);
     return res.status(500).json({ error: "Internal Server error" });
   }
 };
