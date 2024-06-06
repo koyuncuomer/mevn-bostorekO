@@ -14,45 +14,28 @@
     </section>
 </template>
 
-<script>
+<script setup>
 import SectionHeader from "@/components/SectionHeader.vue"
 import BookList from "@/components/BookList.vue"
 import PaginationWidget from "@/components/widgets/PaginationWidget.vue"
 import LoadingWidget from "@/components/widgets/LoadingWidget.vue"
-
 import { useBookStore } from "@/stores/bookStore.js"
-import { mapState } from "pinia";
+import { ref, computed } from "vue"
 
-export default {
-    name: "BooksView",
-    components: {
-        SectionHeader,
-        BookList,
-        PaginationWidget,
-        LoadingWidget
-    },
-    data() {
-        return {
-            currentPage: 1,
-            itemsPerPage: 8
-        }
-    },
-    computed: {
-        ...mapState(useBookStore, ['books', 'isLoading']),
-        totalPages() {
-            return Math.ceil(this.books.length / this.itemsPerPage)
-        },
-        paginatedBooks() {
-            const startIndex = (this.currentPage - 1) * this.itemsPerPage
-            const endIndex = startIndex + this.itemsPerPage
-            return this.books.slice(startIndex, endIndex)
-        }
-    },
+const currentPage = ref(1)
+const itemsPerPage = 8
 
-    methods: {
-        updatePage(page) {
-            this.currentPage = page
-        }
-    }
+const bookStore = useBookStore()
+const totalPages = computed(() => {
+    return Math.ceil(bookStore.books.length / itemsPerPage)
+})
+const paginatedBooks = computed(() => {
+    const startIndex = (currentPage.value - 1) * itemsPerPage
+    const endIndex = startIndex + itemsPerPage
+    return bookStore.books.slice(startIndex, endIndex)
+})
+
+const updatePage = (page) => {
+    currentPage.value = page
 }
 </script>

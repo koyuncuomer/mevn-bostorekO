@@ -10,11 +10,11 @@
                 <div class="col-md-4">
                     <div class="list-group">
                         <button type="button" class="list-group-item list-group-item-action"
-                            :class="{ active: selectedFilter === 'latest' }" @click="selectFiler('latest')">
+                            :class="{ active: selectedFilter === 'latest' }" @click="selectFilter('latest')">
                             Latest Books
                         </button>
                         <button type="button" class="list-group-item list-group-item-action"
-                            :class="{ active: selectedFilter === 'best' }" @click="selectFiler('best')">
+                            :class="{ active: selectedFilter === 'best' }" @click="selectFilter('best')">
                             Best Ratings
                         </button>
                     </div>
@@ -86,8 +86,7 @@
     </section>
 
 </template>
-
-<script>
+<script setup>
 import CarouselWidget from "@/components/widgets/CarouselWidget.vue"
 import LoadingWidget from "@/components/widgets/LoadingWidget.vue"
 import SectionHeader from "@/components/SectionHeader.vue"
@@ -98,57 +97,45 @@ import hero_3 from "@/assets/images/hero_3.jpg"
 
 import { useBookStore } from "@/stores/bookStore.js"
 import { useCommentStore } from "@/stores/commentStore.js"
-import { mapState } from "pinia";
+import { ref, computed } from "vue";
 
-export default {
-    name: "HomeView",
-    components: {
-        CarouselWidget,
-        SectionHeader,
-        LoadingWidget
-    },
-    data() {
-        return {
-            carouselItems: [
-                { imageUrl: hero_1, subtitle: 'Liberte', title: 'Lorem Ipsum Dolor Sit Amet', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
-                { imageUrl: hero_2, subtitle: 'Egalite', title: 'Excepteur Sint Occaecat Cupidatat', description: 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' },
-                { imageUrl: hero_3, subtitle: 'Fraternite', title: 'Neque Porro Quisquam Est', description: 'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.' }
-            ],
-            // bStore: useBookStore(),
-            selectedFilter: 'latest',
-            openAccordionIndex: 0,
-        }
-    },
-    methods: {
-        selectFiler(filter) {
-            this.selectedFilter = filter
-        },
-        toggleAccordion(index) {
-            if (this.openAccordionIndex === index) {
-                this.openAccordionIndex = -1
-            }
-            else {
-                this.openAccordionIndex = index
-            }
-        }
-    },
+const carouselItems = [
+    { imageUrl: hero_1, subtitle: 'Liberte', title: 'Lorem Ipsum Dolor Sit Amet', description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' },
+    { imageUrl: hero_2, subtitle: 'Egalite', title: 'Excepteur Sint Occaecat Cupidatat', description: 'Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.' },
+    { imageUrl: hero_3, subtitle: 'Fraternite', title: 'Neque Porro Quisquam Est', description: 'Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.' }
+]
 
-    computed: {
-        ...mapState(useBookStore, ['books', 'isLoading', 'latest4Books', 'rated4Books']),
-        ...mapState(useCommentStore, ['comments']),
-        filteredBooks() {
-            if (this.selectedFilter === 'latest') {
-                return this.latest4Books;
-            } else if (this.selectedFilter === 'best') {
-                return this.rated4Books;
-            }
-        },
-        prepare4Comments() {
-            const latest4Comments = this.comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4)
-            return latest4Comments
-        }
+const selectedFilter = ref('latest')
+const openAccordionIndex = ref(0)
+
+const selectFilter = (filter) => {
+    selectedFilter.value = filter
+}
+const toggleAccordion = (index) => {
+    if (openAccordionIndex.value === index) {
+        openAccordionIndex.value = -1
+    }
+    else {
+        openAccordionIndex.value = index
     }
 }
+
+const commentStore = useCommentStore()
+const prepare4Comments = computed(() => {
+    const latest4Comments = commentStore.comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 4)
+    return latest4Comments
+})
+
+const bookStore = useBookStore()
+const filteredBooks = computed(() => {
+    if (selectedFilter.value === 'latest') {
+        return bookStore.latest4Books;
+    } else if (selectedFilter.value === 'best') {
+        return bookStore.rated4Books;
+    }
+})
+
+const isLoading = computed(() => useBookStore.isLoading)
 </script>
 
 <style scoped>
