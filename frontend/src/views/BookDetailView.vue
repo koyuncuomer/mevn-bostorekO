@@ -103,7 +103,8 @@
 
                                 <div class="d-flex justify-content-between">
                                     <div class="d-flex flex-row align-items-center">
-                                        <p class="small mb-0 ms-2">{{ comment.postedBy.username }}</p>
+                                        <p class="small mb-0 ms-2">{{ comment.postedBy.username }} - {{
+                                            formatDateWithTime(comment.createdAt) }}</p>
                                     </div>
                                     <div class="d-flex flex-row align-items-center" style="gap: 10px">
 
@@ -293,6 +294,17 @@ const formatDate = (date_) => {
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
+    });
+    return formatter.format(date);
+}
+const formatDateWithTime = (date_) => {
+    const date = new Date(date_);
+    const formatter = new Intl.DateTimeFormat('tr-TR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
     });
     return formatter.format(date);
 }

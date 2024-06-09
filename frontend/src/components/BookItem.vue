@@ -35,7 +35,7 @@ export default {
     },
     computed: {
         averageRating() {
-            if (this.book.ratings.length > 0) {
+            if (this.book.ratings && this.book.ratings.length > 0) {
                 const totalRating = this.book.ratings.reduce(
                     (sum, rating) => sum + rating.rate,
                     0

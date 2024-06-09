@@ -99,7 +99,12 @@ export const useCommentStore = defineStore("commentStore", {
           (comment) => comment._id === updatedComment._id
         );
         if (commentIndex !== -1) {
-          this.comments[commentIndex] = updatedComment;
+          const { postedBy, book } = this.comments[commentIndex];
+          this.comments[commentIndex] = {
+            ...updatedComment,
+            postedBy,
+            book,
+          };
         }
       } catch (error) {
         throw error.response.data;
@@ -115,7 +120,12 @@ export const useCommentStore = defineStore("commentStore", {
           (comment) => comment._id === updatedComment._id
         );
         if (commentIndex !== -1) {
-          this.comments[commentIndex] = updatedComment;
+          const { postedBy, book } = this.comments[commentIndex]; 
+          this.comments[commentIndex] = {
+            ...updatedComment,
+            postedBy,
+            book,
+          };
         }
       } catch (error) {
         throw error.response.data;
