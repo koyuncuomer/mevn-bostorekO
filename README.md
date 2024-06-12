@@ -3,6 +3,10 @@
 MEVN-BOSTOREKO, MongoDB, Express.js, Vue.js ve Node.js (MEVN) teknolojilerini kullanarak oluşturulmuş bir web uygulamasıdır. Kullanıcılar kitapları inceleyebilir, yorum yapabilir ve puanlayabilirler. Proje, backend ve frontend olmak üzere iki ana bileşene ayrılmıştır.
 Proje [bu adresteki](https://www.youtube.com/watch?v=PZIiy95IJz8&list=PL-Hkw4CrSVq-YPIgQtuLS3Lx1S-z9Sy_S) eğitimden faydalanılarak hazırlanmıştır.
 
+
+https://github.com/koyuncuomer/mevn-bostorekO/assets/34441864/241e3936-f371-4f7d-a571-53cc7f6ade6a
+
+
 ## Kurulum
 
 ### Gereksinimler
